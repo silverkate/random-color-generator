@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:random_color_generator/services/color_generator_service.dart';
 
@@ -17,6 +19,9 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
 
   final _colorGenerator = ColorGeneratorService.instance;
   final _colorNotifier = ValueNotifier<Color>(Colors.white);
+  final _isPausedNotifier = ValueNotifier<bool>(true);
+
+  StreamSubscription<dynamic>? _autoChangeBackgroundStream;
 
   @override
   void initState() {
@@ -50,11 +55,16 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
                 ),
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Colors.green,
-              elevation: 0,
-              onPressed: _setAutomaticSwitch,
-              child: const Icon(Icons.play_arrow),
+            floatingActionButton: ValueListenableBuilder<bool>(
+              valueListenable: _isPausedNotifier,
+              builder: (_, isPaused, ___) => FloatingActionButton(
+                backgroundColor: isPaused ? Colors.green : Colors.red,
+                onPressed: _setAutomaticSwitch,
+                child: Icon(
+                  isPaused ? Icons.play_arrow : Icons.pause,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
         );
@@ -65,6 +75,8 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
   @override
   void dispose() {
     _colorNotifier.dispose();
+    _isPausedNotifier.dispose();
+    _autoChangeBackgroundStream?.cancel();
     super.dispose();
   }
 
@@ -73,6 +85,13 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
   }
 
   void _setAutomaticSwitch() {
-    // TODO: implement.
+    if (_isPausedNotifier.value) {
+      _autoChangeBackgroundStream = Stream.periodic(const Duration(seconds: 2))
+          .listen((_) => _changeBackgroundColor());
+    } else {
+      _autoChangeBackgroundStream?.cancel();
+    }
+
+    _isPausedNotifier.value = !_isPausedNotifier.value;
   }
 }

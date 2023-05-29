@@ -32,20 +32,29 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
         return GestureDetector(
           onTap: _changeBackgroundColor,
           child: Scaffold(
-            backgroundColor: color,
-            body: GestureDetector(
-              onTap: _changeBackgroundColor,
-              child: Center(
-                child: Text(
-                  'Hello there',
-                  style: TextStyle(
-                    color: _colorGenerator.getReadableTextColor(
-                      backgroundColor: color,
+            body: AnimatedContainer(
+              color: color,
+              duration: const Duration(seconds: 1),
+              child: GestureDetector(
+                onTap: _changeBackgroundColor,
+                child: Center(
+                  child: Text(
+                    'Hello there',
+                    style: TextStyle(
+                      color: _colorGenerator.getReadableTextColor(
+                        backgroundColor: color,
+                      ),
+                      fontSize: _fontSize,
                     ),
-                    fontSize: _fontSize,
                   ),
                 ),
               ),
+            ),
+            floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.green,
+              elevation: 0,
+              onPressed: _setAutomaticSwitch,
+              child: const Icon(Icons.play_arrow),
             ),
           ),
         );
@@ -61,5 +70,9 @@ class _ColorGenerationPageState extends State<ColorGenerationPage> {
 
   void _changeBackgroundColor() {
     _colorNotifier.value = _colorGenerator.getRandomColor();
+  }
+
+  void _setAutomaticSwitch() {
+    // TODO: implement.
   }
 }
